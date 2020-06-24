@@ -34,22 +34,52 @@ router.post('/add', (req, res) => {
         })
         return;
     }
-    let sql = "UPDATE dm_cart SET collection=? WHERE id IN(?) AND uname=?";
+
+    let sql;
     let msg = collection == 1 ? '收藏' : '加入购物车'
-    pool.query(sql, [collection, ids, uname], (err, data) => {
-        if(err) throw err;
-        if( data.affectedRows ){
-            res.send({
-                code: 200,
-                data: null,
-                msg: `${msg}成功`
-            })
-        }else{
-            res.send({
-                code: 5,
-                msg: `${msg}失败`
-            })
-        }
+    ids.forEach(item => {
+        sql = "SELECT * FROM dm_cart WHERE pid=( SELECT pid FROM dm_cart WHERE id=? AND uname=?) AND collection=? AND uname=?";
+        pool.query(sql, [item, uname, collection, uname], (err, data) => {
+            if(err) throw err;
+            if( data.length ){
+                sql = "DELETE FROM dm_cart WHERE id=?";
+                pool.query(sql, [item], (err, result) => {
+                    if(err) throw err;
+                    if( result.affectedRows ){
+                        res.send({
+                            code: 200,
+                            data: null,
+                            msg: `${msg}成功`
+                        })
+                    }else{
+                        res.send({
+                            code: 5,
+                            msg: `${msg}失败`
+                        })
+                    }
+                    return;
+                })
+            }else{
+                sql = "UPDATE dm_cart SET collection=? WHERE id=? AND uname=?";
+                pool.query(sql, [collection, item, uname], (err, data) => {
+                    if(err) throw err;
+                    if( data.affectedRows ){
+                        res.send({
+                            code: 200,
+                            data: null,
+                            msg: `${msg}成功`
+                        })
+                    }else{
+                        res.send({
+                            code: 5,
+                            msg: `${msg}失败`
+                        })
+                    }
+                    return;
+                })               
+            }
+        })
+        
     })
 })
 

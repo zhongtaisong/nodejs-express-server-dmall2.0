@@ -35,13 +35,16 @@ const requestWhiteList = [
   '/api/users/reg',
   '/api/details/select',
   '/api/cart/select/num',
-  '/api/comment/select/pid'
+  '/api/comment/select/pid',
+  '/api/dic/selectDic',
+  '/api/products/select/filter',
+  '/api/users/logout'
 ];
 
 // 配置跨域访问
 app.use(cors({
 	// 指定接收的地址
-  origin: [ 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001','http://127.0.0.1:3001',
+  origin: [ 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8080','http://127.0.0.1:8080',
   'http://172.16.66.163:3000', 'http://192.168.2.102:3000', 'http://192.168.2.101:3000', 'http://192.168.2.100:3000' ],
 	// 指定接收的请求类型
 	methods: ['GET', 'POST'],
@@ -68,7 +71,7 @@ app.use('/api', express.static('public'));
 app.all('/*', (req, res, next) => {
   const { token, type, uname } = req.headers || {};
   const { path, body, query } = req;
-  if( type == 'wx' && !requestWhiteList.includes(path) ) {
+  if( (type == 'wx' || type == 'vue') && !requestWhiteList.includes(path) ) {
     if( (query.hasOwnProperty('uname') && !query.uname) || (body.hasOwnProperty('uname') && !body.uname) || !uname ) {
       res.status(401).send({
           code: 401,
