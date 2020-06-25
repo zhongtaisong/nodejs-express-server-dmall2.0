@@ -245,98 +245,148 @@ router.post('/select/settlement', (req,res) => {
 
 // 查询全部订单 / 查询指定用户订单
 router.get('/select', (req, res) => {
-	let { current=1, pageSize, uname } = req.query || {};
-    if( !current ){
-        res.status(400).send({
-            code: 1,
-            msg: 'current不能为空,且大于0'
-        })
-        return;
-    }
+	let { current=1, pageSize, uname, id, oIndex } = req.query || {};
 
-    (async () => {
-        let sql, params=null;
-        let result = {
-            // current - 当前页
-            current: current - 1
-        };
-        if( !uname ){
-            await new Promise((resolve, reject) => {
-                sql = "SELECT id, uname, ordernum, submitTime, num, totalprice FROM dm_order ORDER BY submitTime DESC";
-                pool.query(sql, null, (err, data) => {
-                    if(err) throw err;
-                    // 一页多少条数据
-                    result['pageSize'] = pageSize ? parseInt(pageSize) : (data.length ? data.length : current);
-                    // 数据总数
-                    result['total'] = data.length;
-                    // 结果
-                    result.products = data.slice(result.current * result.pageSize, result.current * result.pageSize + result.pageSize);
-                    resolve();
-                })
+    if(!id) {
+        if( !current ){
+            res.status(400).send({
+                code: 1,
+                msg: 'current不能为空,且大于0'
             })
-        }else{
-            const orders = await new Promise((resolve, reject) => {
-                sql = "SELECT * FROM dm_order WHERE uname=? ORDER BY submitTime DESC";
-                params = [uname];
-                pool.query(sql, params, (err, data) => {
-                    if(err) throw err;
-                    resolve(data);
-                })
-            })
+            return;
+        }
 
-            const arr = await new Promise((resolve, reject) => {
-                let result = [];
-                if(orders.length) {
-                  orders.map((item, index) => {
-                      sql = `SELECT id, mainPicture, description, spec, price FROM dm_products WHERE id IN (${item.pid})`;
-                      pool.query(sql, null, (err, data) => {
-                          if(err) throw err;
-                          let nums = item.nums ? item.nums.split(',') : [];
-                          data.map((d, i) => {
-                              d['ordernum'] = item.ordernum;
-                              d['num'] = Number(nums[i]);
-                              d['totalprice'] = d['num'] * d['price'];
-                              d['orderId'] = item.id;
-                          });
-                          result.push(data);
-                          result.length == orders.length && resolve(result);
+        (async () => {
+            let sql, params=null;
+            let result = {
+                // current - 当前页
+                current: current - 1
+            };
+            if( !uname ){
+                await new Promise((resolve, reject) => {
+                    sql = "SELECT id, uname, ordernum, submitTime, num, totalprice FROM dm_order ORDER BY submitTime DESC";
+                    pool.query(sql, null, (err, data) => {
+                        if(err) throw err;
+                        // 一页多少条数据
+                        result['pageSize'] = pageSize ? parseInt(pageSize) : (data.length ? data.length : current);
+                        // 数据总数
+                        result['total'] = data.length;
+                        // 结果
+                        result.products = data.slice(result.current * result.pageSize, result.current * result.pageSize + result.pageSize);
+                        resolve();
+                    })
+                })
+            }else{
+                const orders = await new Promise((resolve, reject) => {
+                    sql = "SELECT * FROM dm_order WHERE uname=? ORDER BY submitTime DESC";
+                    params = [uname];
+                    pool.query(sql, params, (err, data) => {
+                        if(err) throw err;
+                        resolve(data);
+                    })
+                })
+    
+                const arr = await new Promise((resolve, reject) => {
+                    let res = [];
+                    if(orders.length) {
+                      orders.map((item, index) => {
+                          sql = `SELECT id, mainPicture, description, spec, price FROM dm_products WHERE id IN (${item.pid})`;
+                          pool.query(sql, null, (err, data) => {
+                              if(err) throw err;
+                              let nums = item.nums ? item.nums.split(',') : [];
+                              data.map((d, i) => {
+                                  d['ordernum'] = item.ordernum;
+                                  d['num'] = Number(nums[i]);
+                                  d['totalprice'] = d['num'] * d['price'];
+                                  d['orderId'] = item.id;
+                              });
+                              res.push(data);
+                              res.length == orders.length && resolve(res);
+                          })
                       })
-                  })
-                }else{
-                  resolve(result);
-                }
-            })
-
-            let obj = [];
-            orders.forEach((o, n) => {
-                arr.forEach((a, i) => {
-                    if(o.ordernum == a[0].ordernum){
-                        obj.push({
-                            id: o.id,
-                            ordernum: o.ordernum,
-                            submitTime: o.submitTime,
-                            nums: o.nums,
-                            pid: o.pid,
-                            content: arr[i]
-                        })
+                    }else{
+                      resolve(res);
                     }
                 })
+    
+                let obj = [];
+                orders.forEach((o, n) => {
+                    arr.forEach((a, i) => {
+                        if(o.ordernum == a[0].ordernum){
+                            obj.push({
+                                id: o.id,
+                                ordernum: o.ordernum,
+                                submitTime: o.submitTime,
+                                nums: o.nums,
+                                pid: o.pid,
+                                content: arr[i]
+                            })
+                        }
+                    })
+                })
+                // 一页多少条数据
+                result['pageSize'] = pageSize ? parseInt(pageSize) : (obj.length ? obj.length : current);
+                // 数据总数
+                result['total'] = obj.length;
+                // 结果
+                result.products = obj.slice(result.current * result.pageSize, result.current * result.pageSize + result.pageSize);
+            }    
+    
+            result.current = result.current + 1;
+            res.send({
+                code: 200,
+                data: result
+            });
+        })()
+    }else {
+        if(!uname){
+            res.status(400).send({
+                code: 2,
+                msg: 'uname不能为空！'
             })
-            // 一页多少条数据
-            result['pageSize'] = pageSize ? parseInt(pageSize) : (obj.length ? obj.length : current);
-            // 数据总数
-            result['total'] = obj.length;
-            // 结果
-            result.products = obj.slice(result.current * result.pageSize, result.current * result.pageSize + result.pageSize);
-        }    
+            return;
+        }
 
-        result.current = result.current + 1;
-        res.send({
-            code: 200,
-            data: result,
-            
-        });
-    })()
+        let sql = "SELECT * FROM dm_order WHERE id=? AND uname=?";
+        pool.query(sql, [id, uname], (err, data01) => {
+            if(err) throw err;
+            if(data01.length) {
+                let d = data01[0];
+                let { nums, pid } = d || {};
+                nums = nums.split(',');
+                d.num = !isNaN(nums[oIndex]) ? Number(nums[oIndex]) : 1;
+                pid = pid.split(',');
+                delete d.nums;
+                delete d.pid;
+                delete d.aid;
+                delete d.id;
+                sql = "SELECT id, mainPicture, price, description, spec FROM dm_products WHERE id=?";
+                pool.query(sql, [ pid[oIndex] ], (err, data02) => {
+                    if(err) throw err;
+                    if(data02.length) {
+                        const { price } = data02[0] || {};
+                        d.totalprice = price * d.num;
+                        let obj = {...d, ...data02[0]};
+                        res.send({
+                            code: 200,
+                            data: [obj]
+                        });
+                    }else{
+                        res.send({
+                            code: 200,
+                            data: []
+                        });
+                    }
+                })
+
+            }else {                
+                res.send({
+                    code: 200,
+                    data: []
+                });
+            }
+        })
+    }
 })
 
 module.exports=router;
