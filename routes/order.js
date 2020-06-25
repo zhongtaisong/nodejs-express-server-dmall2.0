@@ -83,7 +83,11 @@ router.get('/detail', (req, res) => {
                 if(err) throw err;
                 params01.nums = params01.nums.split(',');
                 if( data.length ){
-                    data.map((item, index) => item['num'] = Number(params01.nums[index]));
+                    data.map((item, index) => {
+                        let num = Number(params01.nums[index]);
+                        item['num'] = num;
+                        item['totalprice'] = item.price * num; 
+                    });
                 }
                 result['productsInfo'] = data;
                 resolve();

@@ -74,6 +74,7 @@ router.post('/select', (req, res) => {
             sql = `SELECT * FROM dm_products`;
         }
     }
+    sql += ` ORDER BY startTime`;
     pool.query(sql, null, (err, data) => {
         if( err ){
             res.status(503).send({
