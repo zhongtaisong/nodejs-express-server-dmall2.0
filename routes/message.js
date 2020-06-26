@@ -26,8 +26,7 @@ router.post('/update/agree', (req, res) => {
         if(data.affectedRows){
             res.send({
                 code: 200,
-                data: null,
-                msg: `${msg}`
+                data: null
             })
         }else{
             res.status(404).send({
