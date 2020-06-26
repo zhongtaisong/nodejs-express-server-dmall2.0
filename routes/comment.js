@@ -70,7 +70,6 @@ router.post('/update/agree', (req, res) => {
             res.send({
                 code: 200,
                 data: null,
-                msg: `${msg}`
             })
         }else{
             res.status(404).send({
