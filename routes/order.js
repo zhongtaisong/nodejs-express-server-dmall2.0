@@ -237,8 +237,7 @@ router.post('/select/settlement', (req,res) => {
         })
         res.send({
             code: 200,
-            data: result,
-            
+            data: result            
         })
     })()
 })

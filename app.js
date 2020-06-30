@@ -22,7 +22,7 @@ const admin = require('./routes/admin.js');
 
 let app = express();
 
-// 白名单
+// 接口白名单
 const requestWhiteList = [
   '/api/index/onepush',
   '/api/index/banner',
@@ -38,7 +38,8 @@ const requestWhiteList = [
   '/api/comment/select/pid',
   '/api/dic/selectDic',
   '/api/products/select/filter',
-  '/api/users/logout'
+  '/api/users/logout',
+  '/api/message/select'
 ];
 
 // 配置跨域访问

@@ -93,7 +93,7 @@ router.get('/select', (req, res) => {
         return;
     }
     
-    let sql = "SELECT * FROM dm_address WHERE uname=?";
+    let sql = "SELECT * FROM dm_address WHERE uname=? ORDER BY id DESC";
     pool.query(sql, [uname], (err, data) => {
         if(err) throw err;
         res.send({
