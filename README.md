@@ -12,7 +12,7 @@
 
 >  有问题请直接提 Issues，或者您发现问题并有非常好的解决方案，欢迎 PR 👍
 
->  传送门：[pc](https://github.com/zhong-tsong/react-pc-dmall)  、 [h5](https://github.com/zhong-tsong/react-h5-dmall)  、 [微信小程序](https://github.com/zhong-tsong/taro-wx-dmall)
+>  传送门：[react-h5](https://github.com/zhong-tsong/react-mobx-antd-mobile-pc-dmall2.0)  、 [taro-微信小程序](https://github.com/zhong-tsong/taro2-mobx-taro-ui-wx-dmall2.0)  、 [vue-pc](https://github.com/zhong-tsong/vue3-vuex-element-ui-pc-dmall2.0)  、 [react-pc](https://github.com/zhong-tsong/react-mobx-antd-pc-dmall2.0)
 
 
 
@@ -25,7 +25,7 @@ express + mysql + cors + multer
 
 
 ```
-git clone https://github.com/zhong-tsong/express-server-dmall  
+git clone https://github.com/zhong-tsong/nodejs-express-server-dmall2.0  
 
 cd express-server-dmall  
 
@@ -41,5 +41,5 @@ npm run start (需安装mysql，安装教程https://www.runoob.com/mysql/mysql-i
 
 # License
 
-[MIT](https://github.com/zhong-tsong/express-server-dmall/blob/master/LICENSE)
+[MIT](https://github.com/zhong-tsong/nodejs-express-server-dmall2.0/blob/master/LICENSE)
 
