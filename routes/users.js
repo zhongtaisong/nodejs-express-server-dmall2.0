@@ -450,7 +450,7 @@ router.post('/log', (req, res) => {
             })
           }else{
             upwd = require('crypto').createHash('md5').update( upwd + data01[0].ukey ).digest('hex');
-            let sql02 = "SELECT uname, upwd FROM dm_user WHERE uname = ? AND upwd = ?";
+            let sql02 = "SELECT * FROM dm_user WHERE uname = ? AND upwd = ?";
             pool.query(sql02, [uname, upwd], (err, data02) => {
                 if( err ){
                   res.status(503).send({
@@ -459,19 +459,20 @@ router.post('/log', (req, res) => {
                   })
                 }else{
                     if( data02.length ){
+                        const { upwd, ukey, ...rest } = data02?.[0] || {};
                         if( !isUser ){
                             let time = 1000 * 60 * 60 * 24;
                             // 0表示不记住密码， 1表示记住密码
                             if( isRemember ){
-                                data02[0].upwd && res.cookie('token', data02[0].upwd);
+                                upwd && res.cookie('token', upwd);
                             }else{
-                                data02[0].upwd && res.cookie('token', data02[0].upwd, { maxAge: time, httpOnly: true });
+                                upwd && res.cookie('token', upwd, { maxAge: time, httpOnly: true });
                             }
                             res.send({
                                 code: 200,
                                 data: {
-                                    uname: data02[0].uname,
-                                    token: data02[0].upwd
+                                    ...rest,
+                                    token: upwd,
                                 },
                                 msg: '恭喜你，登录成功！'
                             });
@@ -479,7 +480,6 @@ router.post('/log', (req, res) => {
                             res.send({
                                 code: 200,
                                 data: null,
-                                
                             });
                         }
                     }else{
