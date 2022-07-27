@@ -461,13 +461,6 @@ router.post('/log', (req, res) => {
                     if( data02.length ){
                         const { upwd, ukey, ...rest } = data02?.[0] || {};
                         if( !isUser ){
-                            let time = 1000 * 60 * 60 * 24;
-                            // 0表示不记住密码， 1表示记住密码
-                            if( isRemember ){
-                                upwd && res.cookie('token', upwd);
-                            }else{
-                                upwd && res.cookie('token', upwd, { maxAge: time, httpOnly: true });
-                            }
                             res.send({
                                 code: 200,
                                 data: {
@@ -497,7 +490,7 @@ router.post('/log', (req, res) => {
 
 // token认证
 router.post('/oauth', (req, res) => {
-    let { token } = req.cookies || {};
+    const { token } = req.headers || {};
     if( !token ){
         res.send({
             code: 401,
