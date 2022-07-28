@@ -11,7 +11,7 @@ let upload = multer() // 文件储存路径
 
 // 查询菜单 和 按钮权限
 router.get('/select/uname', (req, res) => {
-	let { uname } = req.query || {};
+    const { uname } = req.headers || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -92,7 +92,8 @@ router.get('/select', (req, res) => {
 
 // 添加用户权限/ 修改用户权限
 router.post('/edit', (req, res) => {
-    let { id, uname, role, operator, ...rest } = req.body || {};
+    const { uname } = req.headers || {};
+    let { id, role, operator, ...rest } = req.body || {};
     let body = req.body || {};
     if( !role ){
         res.status(400).send({
@@ -240,7 +241,8 @@ router.get('/select', (req, res) => {
 
 // 删除用户权限
 router.get('/delete', (req, res) => {
-    let { id, uname } = req.query || {};
+    const { uname } = req.headers || {};
+    let { id } = req.query || {};
     if( !id ){
         res.status(400).send({
             code: 1,

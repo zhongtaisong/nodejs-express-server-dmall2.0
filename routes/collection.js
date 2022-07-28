@@ -4,7 +4,8 @@ const pool=require("../pool");
 
 // 加入收藏 / 加入购物车
 router.post('/add', (req, res) => {
-    const { ids, uname, collection } = req.body || {};
+    const { uname } = req.headers || {};
+    const { ids, collection } = req.body || {};
     if( !ids || !ids.length || !Array.isArray(ids) ){
         res.status(400).send({
             code: 1,

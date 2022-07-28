@@ -4,7 +4,8 @@ const pool=require("../pool");
 
 // 删除购物车 - 指定商品 / 全部商品
 router.post('/delete', (req, res) => {
-    const { ids, uname } = req.body || {};
+    const { uname } = req.headers || {};
+    const { ids } = req.body || {};
     if( !ids || !ids.length || !Array.isArray(ids) ){
         res.status(400).send({
             code: 1,
@@ -39,7 +40,8 @@ router.post('/delete', (req, res) => {
 
 // 商品数量更新
 router.post('/update/num', (req,res) => {
-    const { uname, id, num, totalprice } = req.body || {};
+    const { uname } = req.headers || {};
+    const { id, num, totalprice } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -88,7 +90,8 @@ router.post('/update/num', (req,res) => {
 
 // 查询购物车 / 查询收藏
 router.get('/select', (req, res) => {
-    const { uname, collection } = req.query || {};
+    const { uname } = req.headers || {};
+    const { collection } = req.query || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -124,7 +127,8 @@ router.get('/select', (req, res) => {
 
 // 加入购物车
 router.post('/add', (req,res) => {
-    let { uname, list } = req.body || {};
+    const { uname } = req.headers || {};
+    let { list } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -187,7 +191,7 @@ router.post('/add', (req,res) => {
 
 // 查询购物车商品数量
 router.get('/select/num', (req, res) => {
-    const { uname } = req.query || {};
+    const { uname } = req.headers || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -309,7 +313,7 @@ router.post('/update/spec', (req, res) => {
 
 // webApp - 当前用户默认收货地址
 router.get('/select/address', (req, res) => {
-    const { uname } = req.query || {};
+    const { uname } = req.headers || {};
     if( !uname ){
         res.status(400).send({
             code: 1,

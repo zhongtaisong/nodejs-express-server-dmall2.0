@@ -11,7 +11,7 @@ let upload = multer() // 文件储存路径
 
 // 查询指定用户
 router.get('/select/uname', (req, res) => {
-    const { uname } = req.query || {};
+    const { uname } = req.headers || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -342,7 +342,8 @@ router.get('/delete', (req, res) => {
 router.post('/reg', (req, res) => {
     // 随机key值
     const pwdKey = Math.random().toString().slice(2);
-    let { uname, upwd, email, phone } = req.body || {};
+    const { uname } = req.headers || {};
+    let { upwd, email, phone } = req.body || {};
     if( !uname ){
         res.status(400).send({
           code: 1,
@@ -418,7 +419,8 @@ router.post('/reg', (req, res) => {
 
 // 登录
 router.post('/log', (req, res) => {
-    let { uname, upwd, isUser, isRemember } = req.body || {};
+    const { uname } = req.headers || {};
+    let { upwd, isUser, isRemember } = req.body || {};
     // isUser 用户中心 - 登录密码
     if( !uname ){
         res.status(400).send({
@@ -539,7 +541,8 @@ router.post('/logout', async (req, res) => {
 
 // 忘记密码 - 信息验证
 router.post('/vali/forgetPwd', (req, res) => {
-    const { email, uname, phone } = req.body || {};
+    const { uname } = req.headers || {};
+    const { email, phone } = req.body || {};
     if( !email ){
         res.status(400).send({
             code: 1,
@@ -602,7 +605,8 @@ router.post('/vali/forgetPwd', (req, res) => {
 
 // 修改登录密码
 router.post('/update/upwd', (req, res) => {
-    let { uname, oldUpwd, newUpwd, isForgetPwd=false } = req.body || {};
+    const { uname } = req.headers || {};
+    let { oldUpwd, newUpwd, isForgetPwd=false } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,

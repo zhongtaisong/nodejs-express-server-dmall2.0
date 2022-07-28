@@ -154,7 +154,8 @@ router.get('/select/products', (req, res) => {
 
 // 添加评价
 router.post('/add', (req, res) => {
-    const { uname, pid, content } = req.body || {};
+    const { uname } = req.headers || {};
+    const { pid, content } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,

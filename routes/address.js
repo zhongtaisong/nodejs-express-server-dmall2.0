@@ -4,7 +4,8 @@ const pool = require('../pool');
 
 // 添加收货地址 / 修改收货地址
 router.post('/edit', (req, res) => {
-    let { id, uname, name, region, detail, phone, isDefault } = req.body || {};
+    const { uname } = req.headers || {};
+    let { id, name, region, detail, phone, isDefault } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -84,7 +85,7 @@ router.post('/edit', (req, res) => {
 
 // 查询收货地址
 router.get('/select', (req, res) => {
-    const { uname } = req.query || {};
+    const { uname } = req.headers || {};
     if( !uname ){
         res.status(400).send({
             code: 1,

@@ -39,7 +39,8 @@ router.post('/update/agree', (req, res) => {
 
 // 发表留言
 router.post('/add', (req, res) => {
-    const { uname, content } = req.body || {};
+    const { uname } = req.headers || {};
+    const { content } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,

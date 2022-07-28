@@ -105,7 +105,8 @@ router.get('/detail', (req, res) => {
 
 // 添加商品订单
 router.post('/add', (req, res) => {
-    let { uname, aid, pid, num, totalprice, nums } = req.body || {};
+    const { uname } = req.headers || {};
+    let { aid, pid, num, totalprice, nums } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -177,7 +178,8 @@ router.post('/add', (req, res) => {
 
 // 查询结算页，收货地址，商品详情
 router.post('/select/settlement', (req,res) => {
-    let { uname, id, type } = req.body || {};
+    const { uname } = req.headers || {};
+    let { id, type } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -244,7 +246,8 @@ router.post('/select/settlement', (req,res) => {
 
 // 查询全部订单 / 查询指定用户订单
 router.get('/select', (req, res) => {
-	let { current=1, pageSize, uname, id, oIndex } = req.query || {};
+    const { uname } = req.headers || {};
+	let { current=1, pageSize, id, oIndex } = req.query || {};
 
     if(!id) {
         if( !current ){
