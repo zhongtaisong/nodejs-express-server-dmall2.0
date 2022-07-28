@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const pool = require('./pool');
+const helmet = require('helmet');
 
 // 引入路由模块
 const index = require('./routes/index.js');
@@ -42,16 +43,31 @@ const requestWhiteList = [
   '/api/message/select'
 ];
 
+if(process.env.NODE_ENV === 'production') {
+    // 开启安全防护
+    app.use(helmet());
+}
+
 // 配置跨域访问
 app.use(cors({
-	// 指定接收的地址
-  origin: [ 'http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8080','http://127.0.0.1:8080',
-  'http://172.16.66.163:3000', 'http://192.168.2.102:3000', 'http://192.168.2.101:3000', 'http://192.168.2.100:3000', 'http://localhost:9000','http://127.0.0.1:9000' ],
-	// 指定接收的请求类型
-	methods: ['GET', 'POST'],
-	// 指定header
+    // 指定接收的地址
+    origin: [ 
+        'http://localhost:3000', 
+        'http://127.0.0.1:3000', 
+        'http://localhost:8080',
+        'http://127.0.0.1:8080',
+        'http://172.16.66.163:3000', 
+        'http://192.168.2.102:3000', 
+        'http://192.168.2.101:3000', 
+        'http://192.168.2.100:3000', 
+        'http://localhost:9000',
+        'http://127.0.0.1:9000',
+    ],
+    // 指定接收的请求类型
+    methods: ['GET', 'POST'],
+    // 指定header
     alloweHeaders: ['Content-Type', 'Authorization'],
-	credentials: true
+    credentials: true
 }))
 
 // 使用body-parser中间件
