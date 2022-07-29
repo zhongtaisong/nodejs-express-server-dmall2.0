@@ -35,7 +35,8 @@ router.get('/select/uname', (req, res) => {
 
 // 修改用户
 router.post('/update', upload.any(), (req, res) => {
-    let { delList=[], userInfo, uname, type } = req.body || {};
+    const { uname } = req.headers || {};
+    let { delList='[]', userInfo='{}', type } = req.body || {};
     userInfo = JSON.parse( userInfo );
     delList = JSON.parse( delList );
     const rbody = req.body || {};
@@ -419,8 +420,7 @@ router.post('/reg', (req, res) => {
 
 // 登录
 router.post('/log', (req, res) => {
-    const { uname } = req.headers || {};
-    let { upwd, isUser, isRemember } = req.body || {};
+    let { upwd, isUser, uname, isRemember } = req.body || {};
     // isUser 用户中心 - 登录密码
     if( !uname ){
         res.status(400).send({
