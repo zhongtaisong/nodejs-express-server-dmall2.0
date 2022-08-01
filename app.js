@@ -63,8 +63,6 @@ app.use(cors({
         'http://localhost:9000',
         'http://127.0.0.1:9000',
     ],
-    // 指定接收的请求类型
-    methods: ['GET', 'POST'],
     // 指定header
     alloweHeaders: ['Content-Type', 'Authorization'],
     credentials: true

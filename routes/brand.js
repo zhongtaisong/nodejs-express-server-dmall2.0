@@ -3,8 +3,8 @@ const router = express.Router();
 const pool = require('../pool');
 
 // 查询所有品牌
-router.get('/select', (req, res) => {
-	let { current=1, pageSize } = req.query || {};
+router.post('/select', (req, res) => {
+	let { current=1, pageSize } = req.body || {};
     if( !current ){
         res.status(400).send({
             code: 1,
@@ -43,8 +43,8 @@ router.get('/select', (req, res) => {
 
 // 添加品牌
 router.post('/add', (req, res) => {
-    const { fname } = req.body || {};
-    if( !fname ){
+    const { brandName } = req.body || {};
+    if( !brandName ){
         res.status(400).send({
           code: 1,
           msg: '品牌名称不能为空！'
@@ -52,7 +52,7 @@ router.post('/add', (req, res) => {
         return;
     }
 	let sql = "INSERT INTO dm_brands VALUES (NULL, ?)";
-	pool.query(sql, [ fname ], (err, data) => {
+	pool.query(sql, [ brandName ], (err, data) => {
         if( err ){
             res.status(503).send({
                 code: 2,
@@ -76,8 +76,8 @@ router.post('/add', (req, res) => {
 });
 
 // 修改品牌
-router.post('/update', (req, res) => {
-    const { id, fname } = req.body || {};
+router.put('/update', (req, res) => {
+    const { id, brandName } = req.body || {};
     if( !id ){
         res.status(400).send({
           code: 1,
@@ -85,7 +85,7 @@ router.post('/update', (req, res) => {
         })
         return;
     }
-    if( !fname ){
+    if( !brandName ){
         res.status(400).send({
           code: 2,
           msg: '品牌名称不能为空！'
@@ -93,7 +93,7 @@ router.post('/update', (req, res) => {
         return;
     }
 	let sql = "UPDATE dm_brands SET brandName=? WHERE id=?";
-	pool.query(sql, [fname, id], (err, data) => {
+	pool.query(sql, [brandName, id], (err, data) => {
         if( err ){
             res.status(503).send({
                 code: 3,
@@ -117,12 +117,12 @@ router.post('/update', (req, res) => {
 });
 
 // 删除品牌
-router.get('/delete', (req, res) => {
-    const { id } = req.query || {};
+router.delete('/delete/:id', (req, res) => {
+    const { id } = req.params || {};
     if( !id ){
         res.status(400).send({
           code: 1,
-          msg: 'fid不能为空！'
+          msg: 'id不能为空！'
         })
         return;
     }
