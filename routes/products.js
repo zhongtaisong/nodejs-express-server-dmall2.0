@@ -74,7 +74,6 @@ router.post('/select', (req, res) => {
             sql = `SELECT * FROM dm_products`;
         }
     }
-    sql += ` ORDER BY startTime`;
     pool.query(sql, null, (err, data) => {
         if( err ){
             res.status(503).send({
@@ -103,54 +102,18 @@ router.post('/select', (req, res) => {
 });
 
 // 删除商品
-router.get('/delete', (req, res) => {
-    let { id, mainPicture, pictures, detailsPic, bannerPic } = req.query || {};
-    let pics = [];
+router.delete('/delete/:id', (req, res) => {
+    let { id } = req.params || {};
     if( !id ){
-        res.status(400).send({
+        return res.status(400).send({
             code: 1,
             msg: 'id不能为空'
-        })
-        return;
+        });
     }
-    if( !mainPicture ){
-        res.status(400).send({
-            code: 2,
-            msg: 'mainPicture不能为空'
-        })
-        return;
-    }
-    if( !detailsPic ){
-        res.status(400).send({
-            code: 3,
-            msg: 'detailsPic不能为空'
-        })
-        return;
-    }
-    if( !bannerPic ){
-        res.status(400).send({
-            code: 4,
-            msg: 'bannerPic不能为空'
-        })
-        return;
-    }
-    pics.push( mainPicture );
-    pictures = pictures ? pictures.split('|') : [];
-    detailsPic = detailsPic ? detailsPic.split('|') : [];
-    pics = [...pics, ...pictures, ...detailsPic, bannerPic];
     let sql = "DELETE FROM dm_products WHERE id=?";
     pool.query(sql, [id], (err, data) => {
         if( err ) throw err;
         if( data.affectedRows ){
-            pics.forEach(item => {
-                fs.exists(`public/${item}`, exists => {
-                    if( exists ){
-                        fs.unlink(`public/${item}`, (err) => {
-                            if( err ) throw err;
-                        });
-                    }
-                });
-            })
             res.send({
                 code: 200,
                 data: null,
@@ -422,8 +385,8 @@ router.get('/download', (req, res) => {
 })
 
 // 上架 / 下架
-router.get('/push', (req, res) => {
-    const { id, code } = req.query || {};
+router.post('/push', (req, res) => {
+    const { id, code } = req.body || {};
     if( !id ){
         res.status(400).send({
             code: 1,
