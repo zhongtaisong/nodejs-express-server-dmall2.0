@@ -256,9 +256,8 @@ router.post('/update', upload.any(), (req, res) => {
 router.post('/add', upload.any(), (req, res) => {
     let { inputData } = req.body || {};
     inputData = JSON.parse(inputData);
-    const files = req.files || [];
-    let paths = [`${dest}/details`, `${dest}/imgs`, `${dest}/banners`];
-
+    // const files = req.files || [];
+    // let paths = [`${dest}/details`, `${dest}/imgs`, `${dest}/banners`];
     if( !Object.keys(inputData).length ){
         res.status(400).send({
             code: 1,
@@ -267,59 +266,62 @@ router.post('/add', upload.any(), (req, res) => {
         return;
     }
 
-    for(let p of paths){
-        fs.exists(p, exists => {
-            if( !exists ){
-                fs.mkdir(p, err => {
-                    if( err ) throw err;
-                })
-            }
-        })
-    }
+    // for(let p of paths){
+    //     fs.exists(p, exists => {
+    //         if( !exists ){
+    //             fs.mkdir(p, err => {
+    //                 if( err ) throw err;
+    //             })
+    //         }
+    //     })
+    // }
     
     (async () => {
-        let mainPicture, pictures='', detailsPic='', bannerPic='';
+        let mainPicture = null;
+        pictures = null;
+        detailsPic = null;
+        bannerPic = null;
         // 存储商品图片的文件夹路径
         let dirPath;
         let dirPath02;
         const timer = Date.now();
-        await new Promise((resolve, reject) => {
-            files.forEach((item, index) => {
-                let { buffer, fieldname } = item;
-                const encryptionName = require('crypto').createHash('md5').update(`productImg-${timer+index}`).digest('hex');
-                if( fieldname.startsWith('pDetailsImg') ){
-                    dirPath = `${dest}/details`
-                    dirPath02 = `img/products/details`;
-                    detailsPic = `${ dirPath02 }/${ encryptionName }.jpg`;
-                }else if( fieldname.startsWith('pImg') ){
-                    dirPath = `${dest}/imgs`
-                    dirPath02 = `img/products/imgs`;
-                    if( index == 0 ){
-                        mainPicture = `${ dirPath02 }/${ encryptionName }.jpg`;
-                    }else{
-                        pictures += `${ dirPath02 }/${ encryptionName }.jpg`;
-                        if( index == files.length -1 ){
-                            pictures +=  '';
-                        }else{
-                            pictures +=  '|';
-                        }
-                    }
-                }else if( fieldname.startsWith('bannerImg') ){
-                    dirPath = `${dest}/banners`
-                    dirPath02 = `img/products/banners`;
-                    bannerPic = `${ dirPath02 }/${ encryptionName }.jpg`;
-                }
-                if( buffer ){
-                    fs.writeFile(`${ dirPath }/${ encryptionName }.jpg`, buffer, err => {
-                        if( err ){
-                            throw err;
-                        }else{
-                            resolve();
-                        }
-                    })
-                }
-            })
-        })
+        // await new Promise((resolve, reject) => {
+        //     files.forEach((item, index) => {
+        //         let { buffer, fieldname } = item;
+        //         const encryptionName = require('crypto').createHash('md5').update(`productImg-${timer+index}`).digest('hex');
+        //         if( fieldname.startsWith('pDetailsImg') ){
+        //             dirPath = `${dest}/details`
+        //             dirPath02 = `img/products/details`;
+        //             detailsPic = `${ dirPath02 }/${ encryptionName }.jpg`;
+        //         }else if( fieldname.startsWith('pImg') ){
+        //             dirPath = `${dest}/imgs`
+        //             dirPath02 = `img/products/imgs`;
+        //             if( index == 0 ){
+        //                 mainPicture = `${ dirPath02 }/${ encryptionName }.jpg`;
+        //             }else{
+        //                 pictures += `${ dirPath02 }/${ encryptionName }.jpg`;
+        //                 if( index == files.length -1 ){
+        //                     pictures +=  '';
+        //                 }else{
+        //                     pictures +=  '|';
+        //                 }
+        //             }
+        //         }else if( fieldname.startsWith('bannerImg') ){
+        //             dirPath = `${dest}/banners`
+        //             dirPath02 = `img/products/banners`;
+        //             bannerPic = `${ dirPath02 }/${ encryptionName }.jpg`;
+        //         }
+        //         if( buffer ){
+        //             fs.writeFile(`${ dirPath }/${ encryptionName }.jpg`, buffer, err => {
+        //                 if( err ){
+        //                     throw err;
+        //                 }else{
+        //                     resolve();
+        //                 }
+        //             })
+        //         }
+        //     })
+        // })
 
         let { 
             brandId, productName, description, copywriting, price, spec, weight, placeOfOrigin, systems, cpu, thickness, disk, standbyTime, series, bareWeight, screenSize, gpu, characteristic, memory, gpuCapacity, bodyMaterial, onLine=10, hot, single, banner
@@ -338,25 +340,24 @@ router.post('/add', upload.any(), (req, res) => {
             }
         }
 
-        await new Promise((resolve, reject) => {
-            pool.query(sql, params, (err, data) => {
-                if( err ){
-                    throw err;
+        pool.query(sql, params, (err, data) => {
+            if( err ){
+                console.log('11111111', sql)
+                throw err;
+            }else{
+                if( data.affectedRows ){
+                    res.send({
+                        code: 200,
+                        data: null,
+                        msg: '添加商品成功'
+                    })
                 }else{
-                    if( data.affectedRows ){
-                        res.send({
-                            code: 200,
-                            data: null,
-                            msg: '添加商品成功'
-                        })
-                    }else{
-                        res.send({
-                            code: 3,
-                            msg: '添加商品失败'
-                        })
-                    }
+                    res.send({
+                        code: 3,
+                        msg: '添加商品失败'
+                    })
                 }
-            })
+            }
         })
     })()
 })
