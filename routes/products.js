@@ -74,6 +74,7 @@ router.post('/select', (req, res) => {
             sql = `SELECT * FROM dm_products`;
         }
     }
+    sql += ` ORDER BY startTime`;
     pool.query(sql, null, (err, data) => {
         if( err ){
             res.status(503).send({
@@ -129,13 +130,13 @@ router.delete('/delete/:id', (req, res) => {
 })
 
 // 修改商品
-router.post('/update', upload.any(), (req, res) => {
+router.put('/update', upload.any(), (req, res) => {
     let { id, inputData, delList=[], delDetailsList=[], delBannerList=[] } = req.body || {};
     inputData = JSON.parse(inputData);
-    delList = JSON.parse(delList);
-    delDetailsList = JSON.parse(delDetailsList);
-    delBannerList = JSON.parse(delBannerList);
-    let delArr = [...delList, ...delDetailsList, ...delBannerList];
+    // delList = JSON.parse(delList);
+    // delDetailsList = JSON.parse(delDetailsList);
+    // delBannerList = JSON.parse(delBannerList);
+    // let delArr = [...delList, ...delDetailsList, ...delBannerList];
     const files = req.files || [];
     const rbody = req.body || {};
 
@@ -150,65 +151,65 @@ router.post('/update', upload.any(), (req, res) => {
     (async () => {
         let picList = [], picDetailsList = [], bannerList = [];
         // 存储商品图片的文件夹路径
-        let dirPath;
-        let dirPath02;
-        const timer = Date.now();
-        for(let r in rbody){
-            r.startsWith('pImg') && picList.push(rbody[r]);
-            r.startsWith('pDetailsImg') && picDetailsList.push(rbody[r]);
-            r.startsWith('bannerImg') && bannerList.push(rbody[r]);
-        }
-        await new Promise((resolve, reject) => {
-            if( files.length ){
-                files.forEach((item, index) => {
-                    let { buffer, fieldname } = item;
-                    const encryptionName = require('crypto').createHash('md5').update(`productImg-${timer+index}`).digest('hex');
-                    if( buffer ){
-                        if( fieldname.startsWith('pDetailsImg') ){
-                            dirPath = `${dest}/details`
-                            dirPath02 = `img/products/details`;
-                        }else if( fieldname.startsWith('pImg') ){
-                            dirPath = `${dest}/imgs`
-                            dirPath02 = `img/products/imgs`;
-                        }else if( fieldname.startsWith('bannerImg') ){
-                            dirPath = `${dest}/banners`
-                            dirPath02 = `img/products/banners`;
-                        }
-                        fs.writeFile(`${ dirPath }/${ encryptionName }.jpg`, buffer, err => {
-                            if( err ){
-                                throw err;
-                            }else{
-                                resolve();
-                            }
-                        })
-                        if( fieldname.startsWith('pDetailsImg') ){
-                            picDetailsList.push(`${dirPath02}/${ encryptionName }.jpg`);
-                        }else if( fieldname.startsWith('pImg') ){
-                            picList.push(`${dirPath02}/${ encryptionName }.jpg`);
-                        }else if( fieldname.startsWith('bannerImg') ){
-                            bannerList.push(`${dirPath02}/${ encryptionName }.jpg`);
-                        }
-                    }
-                })
-            }else{
-                resolve();
-            }
-        })
+        // let dirPath;
+        // let dirPath02;
+        // const timer = Date.now();
+        // for(let r in rbody){
+        //     r.startsWith('pImg') && picList.push(rbody[r]);
+        //     r.startsWith('pDetailsImg') && picDetailsList.push(rbody[r]);
+        //     r.startsWith('bannerImg') && bannerList.push(rbody[r]);
+        // }
+        // await new Promise((resolve, reject) => {
+        //     if( files.length ){
+        //         files.forEach((item, index) => {
+        //             let { buffer, fieldname } = item;
+        //             const encryptionName = require('crypto').createHash('md5').update(`productImg-${timer+index}`).digest('hex');
+        //             if( buffer ){
+        //                 if( fieldname.startsWith('pDetailsImg') ){
+        //                     dirPath = `${dest}/details`
+        //                     dirPath02 = `img/products/details`;
+        //                 }else if( fieldname.startsWith('pImg') ){
+        //                     dirPath = `${dest}/imgs`
+        //                     dirPath02 = `img/products/imgs`;
+        //                 }else if( fieldname.startsWith('bannerImg') ){
+        //                     dirPath = `${dest}/banners`
+        //                     dirPath02 = `img/products/banners`;
+        //                 }
+        //                 fs.writeFile(`${ dirPath }/${ encryptionName }.jpg`, buffer, err => {
+        //                     if( err ){
+        //                         throw err;
+        //                     }else{
+        //                         resolve();
+        //                     }
+        //                 })
+        //                 if( fieldname.startsWith('pDetailsImg') ){
+        //                     picDetailsList.push(`${dirPath02}/${ encryptionName }.jpg`);
+        //                 }else if( fieldname.startsWith('pImg') ){
+        //                     picList.push(`${dirPath02}/${ encryptionName }.jpg`);
+        //                 }else if( fieldname.startsWith('bannerImg') ){
+        //                     bannerList.push(`${dirPath02}/${ encryptionName }.jpg`);
+        //                 }
+        //             }
+        //         })
+        //     }else{
+        //         resolve();
+        //     }
+        // })
 
-        let [ mainPicture, ...pictures ] = picList;
-        pictures = pictures.join('|');
-        let detailsPic = picDetailsList.join('|');
-        let [ bannerPic ] = bannerList;
+        // let [ mainPicture, ...pictures ] = picList;
+        // pictures = pictures.join('|');
+        // let detailsPic = picDetailsList.join('|');
+        // let [ bannerPic ] = bannerList;
 
         let { 
             brandId, productName, description, copywriting, price, spec, weight, placeOfOrigin, systems, cpu, thickness, disk, standbyTime, series, bareWeight, screenSize, gpu, characteristic, memory, gpuCapacity, bodyMaterial, hot, single, banner
         } = inputData;
     
         let params = [
-            brandId, productName, description, copywriting, price, spec, weight, placeOfOrigin, systems, cpu, thickness, disk, standbyTime, series, bareWeight, screenSize, gpu, characteristic, memory, gpuCapacity, bodyMaterial, mainPicture, pictures, detailsPic, hot, single, banner, bannerPic, id
+            brandId, productName, description, copywriting, price, spec, weight, placeOfOrigin, systems, cpu, thickness, disk, standbyTime, series, bareWeight, screenSize, gpu, characteristic, memory, gpuCapacity, bodyMaterial, hot, single, banner, id
         ];
         let keys = [
-            'brandId', 'productName', 'description', 'copywriting', 'price', 'spec', 'weight', 'placeOfOrigin', 'systems', 'cpu', 'thickness', 'disk', 'standbyTime', 'series', 'bareWeight', 'screenSize', 'gpu', 'characteristic', 'memory', 'gpuCapacity', 'bodyMaterial', 'mainPicture', 'pictures', 'detailsPic', 'hot', 'single', 'banner', 'bannerPic'
+            'brandId', 'productName', 'description', 'copywriting', 'price', 'spec', 'weight', 'placeOfOrigin', 'systems', 'cpu', 'thickness', 'disk', 'standbyTime', 'series', 'bareWeight', 'screenSize', 'gpu', 'characteristic', 'memory', 'gpuCapacity', 'bodyMaterial', 'hot', 'single', 'banner'
         ];
     
         let sql = 'UPDATE dm_products SET ';
@@ -226,15 +227,15 @@ router.post('/update', upload.any(), (req, res) => {
                     throw err;
                 }else{
                     if( data.affectedRows ){
-                        delArr.forEach(item => {
-                            fs.exists(`public/${item}`, exists => {
-                                if( exists ){
-                                    fs.unlink(`public/${item}`, (err) => {
-                                        if( err ) throw err;
-                                    });
-                                }
-                            });
-                        })
+                        // delArr.forEach(item => {
+                        //     fs.exists(`public/${item}`, exists => {
+                        //         if( exists ){
+                        //             fs.unlink(`public/${item}`, (err) => {
+                        //                 if( err ) throw err;
+                        //             });
+                        //         }
+                        //     });
+                        // })
                         res.send({
                             code: 200,
                             data: null,
@@ -334,7 +335,7 @@ router.post('/add', upload.any(), (req, res) => {
         let sql = 'INSERT INTO dm_products VALUES (NULL, ';
         for(let p=0; p<params.length; p++){
             if( p == params.length -1 ){
-                sql += `?)`;
+                sql += `?, NULL, NULL)`;
             }else{
                 sql += `?, `; 
             }
@@ -342,7 +343,6 @@ router.post('/add', upload.any(), (req, res) => {
 
         pool.query(sql, params, (err, data) => {
             if( err ){
-                console.log('11111111', sql)
                 throw err;
             }else{
                 if( data.affectedRows ){
@@ -406,13 +406,13 @@ router.post('/push', (req, res) => {
     if( code == 100 ){
         msg01 = '下架成功！';
         msg02 = '下架失败！';
-        params = [10, null, moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'), id];
+        params = [10, id];
     }else if( code == 10 ){
         msg01 = '上架成功！';
         msg02 = '上架失败！';
-        params = [100, moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'), null, id];
+        params = [100, id];
     }
-    let sql = 'UPDATE dm_products SET onLine=?, startTime=?, endTime=? WHERE id=?';
+    let sql = 'UPDATE dm_products SET onLine=? WHERE id=?';
     pool.query(sql, params, (err, data) => {
         if( err ){
             throw err;
