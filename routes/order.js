@@ -4,8 +4,8 @@ const pool = require("../pool");
 const moment = require('moment');
 
 // 删除订单
-router.get('/delete', (req, res) => {
-    const { id } = req.query || {};
+router.delete('/delete/:id', (req, res) => {
+    const { id } = req.params || {};
     if( !id ){
         res.status(400).send({
             code: 1,
@@ -32,8 +32,8 @@ router.get('/delete', (req, res) => {
 })
 
 // 订单详情
-router.get('/detail', (req, res) => {
-    const { id } = req.query || {};
+router.get('/detail/:id', (req, res) => {
+    const { id } = req.params || {};
     if( !id ){
         res.status(400).send({
             code: 1,
@@ -245,9 +245,8 @@ router.post('/select/settlement', (req,res) => {
 })
 
 // 查询全部订单 / 查询指定用户订单
-router.get('/select', (req, res) => {
-    const { uname } = req.headers || {};
-	let { current=1, pageSize, id, oIndex } = req.query || {};
+router.post('/select', (req, res) => {
+	let { current=1, pageSize, id, oIndex, uname } = req.body || {};
 
     if(!id) {
         if( !current ){

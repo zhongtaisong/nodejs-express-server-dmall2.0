@@ -34,14 +34,12 @@ router.get('/select/uname', (req, res) => {
 });
 
 // 修改用户
-router.post('/update', upload.any(), (req, res) => {
-    const { uname } = req.headers || {};
-    let { delList='[]', userInfo='{}', type } = req.body || {};
-    userInfo = JSON.parse( userInfo );
-    delList = JSON.parse( delList );
+router.put('/update', upload.any(), (req, res) => {
+    let { userInfo, type, id, } = req.body || {};
+    userInfo = JSON.parse(userInfo || '{}');
     const rbody = req.body || {};
     let files = [];
-    if( type == 'wx' ) {
+    if( type === 'wx' ) {
       if( rbody.avatar && !rbody.avatar.includes('avatar') ) {
         files = [{
           buffer: Buffer.from(rbody.avatar, 'base64')
@@ -49,6 +47,14 @@ router.post('/update', upload.any(), (req, res) => {
       }
     }else{
       files = req.files || [];
+      if(!Array.isArray(files) || !files.length) {
+        const { thumbUrl } = userInfo?.avatar?.[0] || {};
+        if(thumbUrl && thumbUrl.includes('base64')) {
+            files = [{
+              buffer: Buffer.from(thumbUrl, 'base64')
+            }];
+        }
+      }
     }
     (async () => {
         let avatarList = [];
@@ -92,20 +98,11 @@ router.post('/update', upload.any(), (req, res) => {
         }
     
         const { phone, gender, birthday, nickName } = userInfo;
-        let sql = 'UPDATE dm_user SET phone=?, avatar=?, gender=?, birthday=?, nickName=? WHERE uname=?';
+        let sql = 'UPDATE dm_user SET phone=?, avatar=?, gender=?, birthday=?, nickName=? WHERE id=?';
         await new Promise((resolve, reject) => {
-            pool.query(sql, [phone, avatarList.toString(), gender, birthday, nickName, uname], (err, data) => {
+            pool.query(sql, [phone, avatarList.toString(), gender, birthday, nickName, id], (err, data) => {
                 if(err) throw err;
                 if( data.affectedRows ){
-                    delList.forEach(item => {
-                        fs.exists(`public/${item}`, exists => {
-                            if( exists ){
-                                fs.unlink(`public/${item}`, (err) => {
-                                    if( err ) throw err;
-                                });
-                            }
-                        });
-                    })
                     res.send({
                         code: 200,
                         data: null,
@@ -207,7 +204,7 @@ router.post('/add', upload.any(), (req, res) => {
 })
 
 // 重置用户密码
-router.post('/resetUpwd', (req, res) => {
+router.put('/resetUpwd', (req, res) => {
     let { id, upwd, ukey } = req.body || {};
     if( !id ){
         res.status(400).send({
@@ -257,8 +254,8 @@ router.post('/resetUpwd', (req, res) => {
 });
 
 // 查询所有用户
-router.get('/select', (req, res) => {
-	let { current=1, pageSize } = req.query || {};
+router.post('/select', (req, res) => {
+	let { current=1, pageSize } = req.body || {};
     if( !current ){
         res.status(400).send({
             code: 1,
@@ -299,8 +296,8 @@ router.get('/select', (req, res) => {
 });
 
 // 删除用户
-router.get('/delete', (req, res) => {
-    let { id, avatar } = req.query || {};
+router.delete('/delete/:id', (req, res) => {
+    let { id } = req.params || {};
     if( !id ){
         res.status(400).send({
             code: 1,
@@ -316,13 +313,13 @@ router.get('/delete', (req, res) => {
                 msg: err
             })
         }else{
-            avatar && fs.exists(`public/${avatar}`, exists => {
-                if( exists ){
-                    fs.unlink(`public/${avatar}`, (err) => {
-                        if( err ) throw err;
-                    });
-                }
-            });
+            // avatar && fs.exists(`public/${avatar}`, exists => {
+            //     if( exists ){
+            //         fs.unlink(`public/${avatar}`, (err) => {
+            //             if( err ) throw err;
+            //         });
+            //     }
+            // });
             if( data.affectedRows ){
                 res.send({
                     code: 200,
