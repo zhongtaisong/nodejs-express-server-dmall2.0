@@ -433,4 +433,24 @@ router.post('/push', (req, res) => {
     })
 })
 
+/**
+ * 查询 - 商品pid
+ */
+router.get('/select/pid', (req, res) => {
+    const sql = 'SELECT id FROM dm_products';
+    pool.query(sql, null, (err, data) => {
+        if(err){                    
+            return res.status(503).send({
+                code: 2,
+                msg: err
+            })
+        }
+
+        res.send({
+            code: 200,
+            data: data?.map?.(item => item?.id) || [],
+        });
+    });
+});
+
 module.exports = router;

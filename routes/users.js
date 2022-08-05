@@ -9,8 +9,28 @@ const multer  = require('multer');
 const dest = 'public/img';
 let upload = multer() // 文件储存路径
 
-// 查询指定用户
+/**
+ * 查询 - 所有用户名
+ */
 router.get('/select/uname', (req, res) => {
+    const sql = 'SELECT uname FROM dm_user';
+    pool.query(sql, null, (err, data) => {
+        if(err){                    
+            return res.status(503).send({
+                code: 1,
+                msg: err
+            });
+        };
+
+        res.send({
+            code: 200,
+            data: data?.map?.(item => item?.uname) || [],
+        });
+    });
+});
+
+// 查询指定用户
+router.get('/select/user-info', (req, res) => {
     const { uname } = req.headers || {};
     if( !uname ){
         res.status(400).send({

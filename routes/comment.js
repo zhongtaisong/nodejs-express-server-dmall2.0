@@ -3,49 +3,6 @@ const router = express.Router();
 const pool = require('../pool');
 const moment = require('moment');
 
-// 查询用户名 和 商品编号
-router.get('/select/getUnameAndPid', (req, res) => {
-    (async () => {
-        // 返回结果
-        let result = {};
-        await new Promise((resolve, reject) => {
-            // 查 - 用户名
-            let sql = 'SELECT uname FROM dm_user';
-            pool.query(sql, null, (err, data) => {
-                if(err){                    
-                    res.status(503).send({
-                        code: 1,
-                        msg: err
-                    })
-                }else{
-                    result['uname'] = data;
-                    resolve();
-                }
-            });
-        })
-        await new Promise((resolve, reject) => {
-            // 查 - 商品编号
-            let sql = 'SELECT id FROM dm_products';
-            pool.query(sql, null, (err, data) => {
-                if(err){                    
-                    res.status(503).send({
-                        code: 2,
-                        msg: err
-                    })
-                }else{
-                    result['id'] = data;
-                    resolve();
-                }
-            });
-        })
-        res.send({
-            code: 200,
-            data: result,
-            
-        });
-    })()
-});
-
 // 喜欢 / 不喜欢
 router.post('/update/agree', (req, res) => {
     const { id, type, agreeNum, disagreeNum } = req.body || {};
@@ -154,8 +111,7 @@ router.get('/select/products', (req, res) => {
 
 // 添加评价
 router.post('/add', (req, res) => {
-    const { uname } = req.headers || {};
-    const { pid, content } = req.body || {};
+    const { pid, content, uname } = req.body || {};
     if( !uname ){
         res.status(400).send({
             code: 1,
@@ -204,7 +160,7 @@ router.post('/add', (req, res) => {
 });
 
 // 删除用户评价
-router.get('/delete/:id', (req, res) => {
+router.delete('/delete/:id', (req, res) => {
     const { id } = req.params || {};
     if( !id ){
         res.status(400).send({
@@ -238,7 +194,7 @@ router.get('/delete/:id', (req, res) => {
 });
 
 // 修改评价
-router.post('/update', (req, res) => {
+router.put('/update', (req, res) => {
     const { content, id } = req.body || {};
     if( !content ){
         res.status(400).send({
@@ -282,8 +238,8 @@ router.post('/update', (req, res) => {
 
 
 // 查询所有用户评价
-router.get('/select', (req, res) => {
-	let { current, pageSize } = req.query || {};
+router.post('/select', (req, res) => {
+	let { current, pageSize } = req.body || {};
     if( !current ){
         res.status(400).send({
             code: 1,
