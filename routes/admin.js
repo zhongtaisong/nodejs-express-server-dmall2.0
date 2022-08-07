@@ -50,7 +50,7 @@ router.post('/select', async (req, res) => {
     }
 
     current = current - 1;
-    const [result01, result02] = await Promise.allSettled([
+    const [result01, result02] = await kit.promiseAllSettled([
         new Promise((resolve, reject) => {
             pool.query("SELECT COUNT(*) as total FROM dm_admin", null, (err, data) => {
                 if(err){
@@ -69,11 +69,7 @@ router.post('/select', async (req, res) => {
                 resolve(data);
             });
         }),
-    ]).then((data) => {
-        if (!Array.isArray(data)) return [];
-
-        return data.map((item) => kit.fnGetPromiseValue(item)) || [];
-    });
+    ]);
 
     Array.isArray(result02) && result02.forEach(item => {
         Object.entries(item).forEach(([key, value]) => {
@@ -302,7 +298,7 @@ router.delete('/delete/:id', (req, res) => {
 router.get("/select/role/uname", async (req, res) => {
     const { uname } = req.headers || {};
 
-    const [result01, result02, result03] = await Promise.allSettled([
+    const [result01, result02, result03] = await kit.promiseAllSettled([
         new Promise((resolve, reject) => {
             pool.query("SELECT uname FROM dm_user", null, (err, data) => {
                 if(err){                    
@@ -334,11 +330,7 @@ router.get("/select/role/uname", async (req, res) => {
                 }[data?.[0]?.role] || [1]);
             });
         }),
-    ]).then((data) => {
-        if (!Array.isArray(data)) return [];
-
-        return data.map((item) => kit.fnGetPromiseValue(item)) || [];
-    });
+    ]);
 
     const uname_list = result01.filter(item => !result02.some(item02 => item02?.uname === item));
     res.send({
